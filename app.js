@@ -28,6 +28,7 @@ boardService.loadBoard(function (err, loadedBoard) { // It is widely accepted th
         });
     }
 });
+
 let turn = 0
 const gameLoop = function (board, callback) {
     let LENGTH = board.length
@@ -66,7 +67,7 @@ const gameLoop = function (board, callback) {
         });
     });
 }
-// make, change, save, load
+
 
 // load, change (put x / o in some empty location) & save, console.table
 
