@@ -1,9 +1,7 @@
-// let localModule = require('./local-module.js');
 let boardService = require('./data-access/boardService.js');
-// boardService.makeEmptyBoard();
 let menu = require('./user-interface/menus.js');
-let win = require('./logic/xoLogic.js');
-// let getUserMove = require('./user-interface/getUserMove.js');
+let gameDynamics = require('./logic/gameDynamics.js');
+const boardUI = require('./user-interface/board.js');
 // callbeck hell
 
 
@@ -20,58 +18,62 @@ boardService.loadBoard(function (err, loadedBoard) { // It is widely accepted th
                 board = boardService.makeEmptyBoard();
                 console.log(`new game`);
             }
-            // most important: menu.getUserMove
 
-            // todo: calc turn from loaded board
 
-            gameLoop(board, gameLoop);
+            stepTurn(board, stepTurn);
         });
     }
 });
-
 let turn = 0
-const gameLoop = function (board, callback) {
-    let LENGTH = board.length
+// put in gamedyn ---->  /// not sure how...
+const stepTurn = function (board, callback) {
     let sign = turn % 2 == 0 ? 'X' : 'O';
+    boardUI.print(board)
     menu.userMove(sign, function (x, y, err) {
         if (err) console.error(err);
-    
-        if (board[x][y] === '') {
-            board[x][y] = sign;
-            turn++;
-         
-        } else {
-            console.log('not valid move mate try agin');
+
+        if (!gameDynamics.isValidMove(board, x, y)) {
+            console.log('not valid move please try agin');
+            return callback(board, stepTurn)
         }
-        // todo: check possible move-dobe, check win - done, restart?-done
 
-        boardService.saveBoard(board, function (err) {
-            if (err) return console.log(err); // if undefined
+        board[y][x] = sign;
+        turn++;
 
-            console.log("The file was saved! now we can load");
-            console.table(board);
-            if (win.isWin(board, sign)) {
-                console.log(`GAME OVER.`)
-                console.log(` ${sign} symbol win!`)
-                menu.isRestart(function (err, restart) {
-                    if (restart) {
-                        board = boardService.makeEmptyBoard()
-                        console.table(board);
-                        callback(board, gameLoop);
 
-                    }
+        // put in gameDyn insted win
 
-                })
-            } else
-                callback(board, gameLoop);
-        });
+        if (gameDynamics.isWin(board, sign)) {
+            console.log(`GAME OVER.`)
+            console.log(` ${sign} symbol win!`)
+            boardUI.print(board);
+            board = boardService.makeEmptyBoard()
+            
+            boardService.saveBoard(board, function (err) {
+                if (err) return console.log(err); // if undefined
+                console.log('cleaning board ... ')
+            });
+
+            menu.isRestart(function (err, restart) {
+                if (restart) {
+                    callback(board, stepTurn);
+                }
+            })
+        } else {
+
+            boardService.saveBoard(board, function (err) {
+                if (err) return console.log(err); // if undefined
+
+                console.log("The file was saved! now we can load");
+                callback(board, stepTurn);
+            });
+        }
+
     });
 }
 
 
-// load, change (put x / o in some empty location) & save, console.table
 
-    // NOTE!!!! dont chnage any method in boardService, they are perfect
 
 
 
