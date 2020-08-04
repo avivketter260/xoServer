@@ -19,21 +19,28 @@ module.exports.makeEmptyBoard = function (row, col) {
 }
 
 
-module.exports.saveBoard = function (board, callback) {
-    const json = JSON.stringify(board);
-    fs.writeFile(`./${filename}`, json, callback);
+module.exports.saveBoard = function (board) {
+    return new Promise(function(res, rej) {
+        const json = JSON.stringify(board);
+        fs.writeFile(`./${filename}`, json, function(err) {
+            if(err) rej(err);
+            res();
+        });
+    })
 }
 
 // assigning (defining) a method on property named 'loadBoard' of object exports. 
-module.exports.loadBoard = function (callback) {
-    fs.readFile(`./${filename}`, function (err, board) {
-        if (!err) {
-            board = JSON.parse(board); // Serialization / deserialization 
-        }
-        callback(err, board);
-
-     
-    });
+module.exports.loadBoard = function () {
+    return new Promise(function (res,rej){
+        fs.readFile(`./${filename}`, function (err, board) {
+            if (!err) {
+                board = JSON.parse(board); // Serialization / deserialization 
+                res(board);
+            } else {
+                rej(err);
+            }
+        });
+    })
 }
 
 

@@ -1,3 +1,4 @@
+const { isRestart } = require("../user-interface/menus");
 
 const LENGTH = 3;
 
@@ -42,15 +43,22 @@ module.exports.isWin = function (board, symbol) {
 
 module.exports.isValidMove = function (board, x, y) {
     // TODO: check that x and y are numbers.
+    // TODO : commit history in git
 
-    if (x < 0 || y < 0){
-        return false; 
+    if (isNaN(x) || isNaN(y)) {
+    return false
     }
 
-    if (x >= board.length || y >= board.length  ){
+    if (x < 0 || y < 0) {
         return false;
     }
-    
+
+
+
+    if (x >= board.length || y >= board.length) {
+        return false;
+    }
+
     if (board[y][x] !== '') {
         return false;
     }

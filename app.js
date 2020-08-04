@@ -12,8 +12,8 @@ let board;
         const answer = await menu.isLoadGame()
         if (answer) {
             const board = await boardService.loadBoard()
+            boardUI.print(board);
             console.log(`the file wad loaded! now we can save`);
-            boardUI.print(board)
         } else {
             board = boardService.makeEmptyBoard();
             console.log('NEW GAME');
@@ -23,47 +23,51 @@ let board;
     }
     let turn = 0;
     let sign;
-const notWin = gameDynamics.isWin(board,sign)
-while(!notWin) {
-    sign = turn % 2 == 0 ? 'X' : 'O';
-    boardUI.print(board)
-    let userInput = await menu.userMove();
-    let x =[userInput[0]];
-    let y =[userInput[1]];
+    const win = gameDynamics.isWin(board, sign)
+    while (!win) {
+        sign = turn % 2 == 0 ? 'X' : 'O';
+        boardUI.print(board)
+        console.log(`its ${sign} turn`);
+        let userInput = await menu.userMove();
+        let x = [userInput[0]];
+        let y = [userInput[1]];
         // const stepTurn = function (board) {
-            if (!gameDynamics.isValidMove(board, x, y)) {
-                console.log('not valid move please try agin');
-                // return stepTurn(board, stepTurn)
-            }
 
-
-            board[y][x] = sign;
-            turn++;
+        while (!gameDynamics.isValidMove(board, x, y)) {
+            console.log('not valid move please try agin');
+            userInput = await menu.userMove();
+            x = [userInput[0]];
+            y = [userInput[1]];
         }
-            if (gameDynamics.isWin(board, sign)) {
-                console.log(`GAME OVER.`)
-                console.log(` ${sign} symbol win!`)
-                boardUI.print(board);
-                board = boardService.makeEmptyBoard();
 
 
-                boardService.saveBoard(board);
-                console.log('cleaning board ... ')
+        board[y][x] = sign;
+        turn++;
 
-                const restart = await menu.isRestart()
-                if (restart) {
-                    
-                }
+        if (gameDynamics.isWin(board, sign)) {
+            console.log(`GAME OVER.`)
+            console.log(` ${sign} symbol win!`)
+            boardUI.print(board);
+            board = boardService.makeEmptyBoard();
 
-            } else {
 
-               await boardService.saveBoard(board);
-                console.log("The file was saved! now we can load");
-                // stepTurn(board, stepTurn);
+            boardService.saveBoard(board);
+            console.log('cleaning board ... ')
+
+            const restart = await menu.isRestart()
+            if (restart) {
+                //????????????
             }
 
-        
-    
+        } else {
+
+            await boardService.saveBoard(board);
+            console.log("The file was saved! now we can load");
+        }
+
+
+
+    }
 
 
 })().then(() => { });
