@@ -1,4 +1,7 @@
 const { isRestart } = require("../user-interface/menus");
+const boardUI = require('../user-interface/board.js');
+const menu = require('../user-interface/menus.js');
+const boardService = require('../data-access/boardService.js');
 
 const LENGTH = 3;
 
@@ -39,21 +42,20 @@ module.exports.isWin = function (board, symbol) {
 }
 
 
-
-
 module.exports.isValidMove = function (board, x, y) {
-    // TODO: check that x and y are numbers.
     // TODO : commit history in git
 
     if (isNaN(x) || isNaN(y)) {
-    return false
+        return false
     }
 
     if (x < 0 || y < 0) {
         return false;
     }
 
-
+    if (x == '' || y == '') {
+        return false;
+    }
 
     if (x >= board.length || y >= board.length) {
         return false;
@@ -67,3 +69,39 @@ module.exports.isValidMove = function (board, x, y) {
 }
 
 
+
+
+// TODO: step turn method in menu
+module.exports.gameInAction = async function (board) {
+    const gameDynamics = module.exports;
+    let turn = 0;
+    let sign;
+    while (!gameDynamics.isWin(board, sign)) {
+        sign = turn % 2 == 0 ? 'X' : 'O';
+        boardUI.print(board)
+        console.log(`its ${sign} turn`);
+        let userInput = await menu.userMove();
+        let x = userInput.x;
+        let y = userInput.y;
+
+        while (!gameDynamics.isValidMove(board, x, y)) {
+            console.log('not valid move please try agin');
+            console.log(`its ${sign} turn`);
+            userInput = await menu.userMove();
+            x = userInput.x;
+            y = userInput.y;
+        }
+
+        board[y][x] = sign;
+        turn++;
+        await boardService.saveBoard(board);
+
+    }
+    console.log(`GAME OVER.`)
+    console.log(` ${sign} symbol win!`)
+    boardUI.print(board);
+    board = boardService.makeEmptyBoard();
+    await boardService.saveBoard(board);
+    console.log('cleaning board ... ')
+    return board;
+}

@@ -1,6 +1,8 @@
+const express = require('express');
+const app = express();
 const prompt = require('prompt');
 // let boardService = require('./data-access/boardService.js');
-
+const boardService = require('../data-access/boardService.js');
 
 module.exports.isLoadGame = function () {
     return new Promise(function (res, rej) {
@@ -12,8 +14,6 @@ module.exports.isLoadGame = function () {
 
             result.load = result.load.toLowerCase();
 
-            // fallback (default)
-            // let isLoad = false;
             let isLoad = false
             if (result.load === 'yes' || result.load === 'y') {
                 isLoad = true;
@@ -25,7 +25,6 @@ module.exports.isLoadGame = function () {
 
 }
 
-// let boardService = require('./data-access/boardService.js');
 
 module.exports.userMove = function () {
     return new Promise(function (res, rej) {
@@ -33,13 +32,15 @@ module.exports.userMove = function () {
         prompt.get(['whereCol'], function (err, colLocation) {
             if (err) return rej(err);
             console.log(`you chose to put in col num : ${colLocation.whereCol}`);
-            // console.log(`you chose to put in col num : ${colLocation}`);
             prompt.start();
             prompt.get(['whereRow'], function (err, rowLocation) {
                 if (err) console.error(err);
                 console.log(`you chose to put in row num : ${rowLocation.whereRow}`);
 
-                res([colLocation.whereCol, rowLocation.whereRow])
+                res({
+                    x: colLocation.whereCol,
+                    y: rowLocation.whereRow
+                });
             });
         })
     })
@@ -63,3 +64,36 @@ module.exports.isRestart = function () {
     })
 
 }
+
+module.exports.loadOrNewGame = async function () {
+    const menu = module.exports;
+    let board;
+    let loadedBorad;
+    try {
+        loadedBorad = await boardService.loadBoard();
+    } catch (err) {
+        console.log(` Eror... File saved not found. let's start new game `);
+        try {
+            await boardService.deleteFile()
+        } catch (err) {
+            console.log('there is a problem with deleteFile function ');
+        }
+    }
+
+    if (loadedBorad) {
+        const isPositiveAnswer = await menu.isLoadGame()
+        if (isPositiveAnswer) {
+            console.log(`the file wad loaded!`);
+            board = loadedBorad;
+        }
+    }
+
+    if (!board) {
+        console.log('NEW GAME');
+        board = boardService.makeEmptyBoard();
+    }
+
+    return board;
+}
+
+app.listen(3000);

@@ -20,10 +20,10 @@ module.exports.makeEmptyBoard = function (row, col) {
 
 
 module.exports.saveBoard = function (board) {
-    return new Promise(function(res, rej) {
+    return new Promise(function (res, rej) {
         const json = JSON.stringify(board);
-        fs.writeFile(`./${filename}`, json, function(err) {
-            if(err) rej(err);
+        fs.writeFile(`./${filename}`, json, function (err) {
+            if (err) rej(err);
             res();
         });
     })
@@ -31,21 +31,32 @@ module.exports.saveBoard = function (board) {
 
 // assigning (defining) a method on property named 'loadBoard' of object exports. 
 module.exports.loadBoard = function () {
-    return new Promise(function (res,rej){
+    return new Promise(function (res, rej) {
         fs.readFile(`./${filename}`, function (err, board) {
             if (!err) {
-                board = JSON.parse(board); // Serialization / deserialization 
+                try {
+                    board = JSON.parse(board); // Serialization / deserialization 
+                } catch (err) {
+                    rej(err) // reject parse error
+                }
                 res(board);
             } else {
-                rej(err);
+                rej(err); // file system error
+                // TODO: try land here on 44
             }
         });
     })
 }
 
 
-
-
+module.exports.deleteFile = function () {
+    return new Promise(function (res, rej) {
+        fs.unlink(filename, function (err) {
+            if (err) rej(err)
+        })
+        res();
+    });
+}
 
 
 
