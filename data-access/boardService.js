@@ -1,7 +1,7 @@
 const fs = require('fs');
+const baseService = require('./baseService.js');
 const filename = "saved-game.txt"
-
-
+//pure
 module.exports.makeEmptyBoard = function (row, col) {
 
     if (!row) row = 3;
@@ -18,37 +18,17 @@ module.exports.makeEmptyBoard = function (row, col) {
     return board;
 }
 
-
+// unpure
 module.exports.saveBoard = function (board) {
-    return new Promise(function (res, rej) {
-        const json = JSON.stringify(board);
-        fs.writeFile(`./${filename}`, json, function (err) {
-            if (err) rej(err);
-            res();
-        });
-    })
+  return baseService.save(filename, board)
 }
-
-// assigning (defining) a method on property named 'loadBoard' of object exports. 
-module.exports.loadBoard = function () {
-    return new Promise(function (res, rej) {
-        fs.readFile(`./${filename}`, function (err, board) {
-            if (!err) {
-                try {
-                    board = JSON.parse(board); // Serialization / deserialization 
-                } catch (err) {
-                    rej(err) // reject parse error
-                }
-                res(board);
-            } else {
-                rej(err); // file system error
-                // TODO: try land here on 44
-            }
-        });
-    })
+// unpure
+module.exports.loadBoard = function () { 
+    return baseService.load(filename);
 }
 
 
+//pure
 module.exports.deleteFile = function () {
     return new Promise(function (res, rej) {
         fs.unlink(filename, function (err) {

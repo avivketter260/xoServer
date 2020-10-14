@@ -1,8 +1,8 @@
-const express = require('express');
-const app = express();
+
 const prompt = require('prompt');
 // let boardService = require('./data-access/boardService.js');
 const boardService = require('../data-access/boardService.js');
+const { isValidMove, isWin } = require('../logic/gameDynamics.js');
 
 module.exports.isLoadGame = function () {
     return new Promise(function (res, rej) {
@@ -44,8 +44,9 @@ module.exports.userMove = function () {
             });
         })
     })
-
 }
+
+
 // this function work well 
 module.exports.isRestart = function () {
     return new Promise(function (res, rej) {
@@ -64,7 +65,7 @@ module.exports.isRestart = function () {
     })
 
 }
-
+// not pure 
 module.exports.loadOrNewGame = async function () {
     const menu = module.exports;
     let board;
@@ -95,5 +96,3 @@ module.exports.loadOrNewGame = async function () {
 
     return board;
 }
-
-app.listen(3000);

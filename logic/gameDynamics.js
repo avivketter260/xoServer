@@ -4,7 +4,7 @@ const menu = require('../user-interface/menus.js');
 const boardService = require('../data-access/boardService.js');
 
 const LENGTH = 3;
-
+//pure
 module.exports.isWin = function (board, symbol) {
     // let victory = false;
     let countInPrimaryDiagonal = 0;
@@ -41,7 +41,7 @@ module.exports.isWin = function (board, symbol) {
     return win;
 }
 
-
+//pure
 module.exports.isValidMove = function (board, x, y) {
     // TODO : commit history in git
 
@@ -53,7 +53,7 @@ module.exports.isValidMove = function (board, x, y) {
         return false;
     }
 
-    if (x == '' || y == '') {
+    if (x === '' || y === '') {
         return false;
     }
 
@@ -70,8 +70,7 @@ module.exports.isValidMove = function (board, x, y) {
 
 
 
-
-// TODO: step turn method in menu
+// not pure (by ref) 
 module.exports.gameInAction = async function (board) {
     const gameDynamics = module.exports;
     let turn = 0;
@@ -105,3 +104,5 @@ module.exports.gameInAction = async function (board) {
     console.log('cleaning board ... ')
     return board;
 }
+
+
